@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<robot name="checkerboard" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <link name="checkerboard_link">
+      <inertial>
+	      <mass value="0.5" />
+	      <origin xyz="0 0 0" rpy="0 -0 0" />
+	      <inertia ixx="0.00265" ixy="0" ixz="0" iyy="0.00446" iyz="0" izz="0.00446" />
+      </inertial>
+      <visual>
+	      <origin xyz="0 0 0" rpy="0 -0 0" />
+	      <geometry>
+	        <mesh filename="package://marker_box/meshes/checkerboard/checkerboard.dae"/>
+	      </geometry>
+      </visual>
+      <collision>
+	      <origin xyz="0 0 0" rpy="0 -0 0" />
+	      <geometry>
+	        <mesh filename="package://marker_box/meshes/checkerboard/checkerboard.dae"/>
+	      </geometry>
+       </collision>
+    </link>
+    
+    <joint name="checkerboard_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="checkerboard_link"/>
+      <origin xyz="0 0.5 0.01" rpy="0 1.57 0" />
+    </joint>
+</robot>
