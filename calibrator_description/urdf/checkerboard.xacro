@@ -24,6 +24,6 @@
     <joint name="checkerboard_joint" type="fixed">
       <parent link="base_link"/>
       <child link="checkerboard_link"/>
-      <origin xyz="0 0.5 0.01" rpy="0 1.57 0" />
+      <origin xyz="0 1.0 0.01" rpy="0 1.57 1.57" />
     </joint>
 </robot>

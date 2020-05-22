@@ -20,16 +20,54 @@
   <!-- Used for fixing robot to Gazebo 'base_link' -->
   <link name="base_link"/>
   <link name="world" />
-  <joint name="fixed_base" type="fixed">
+  <joint name="joint_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
   </joint>
 
   <xacro:include filename="$(find calibrator_description)/urdf/checkerboard.xacro" />
 
-  <joint name="fixed" type="fixed">
+  <joint name="joint_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="base_link"/>
+    <child link="link0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="link0">
+    <collision>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${height1}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${height1}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia
+	  ixx="${mass / 12.0 * (width*width + height1*height1)}" ixy="0.0" ixz="0.0"
+	  iyy="${mass / 12.0 * (height1*height1 + width*width)}" iyz="0.0"
+	  izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+
+  <joint name="joint0" type="prismatic">
+    <parent link="link0"/>
     <child link="link1"/>
+    <origin xyz="0 0 ${height1 - axel_offset}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.1"/>
+    <limit lower="-2.0" upper="0.0" effort="1000" velocity="1.0" />
   </joint>
 
   <!-- Base Link -->
@@ -59,12 +97,13 @@
     </inertial>
   </link>
 
-  <joint name="joint1" type="continuous">
+  <joint name="joint1" type="prismatic">
     <parent link="link1"/>
     <child link="link2"/>
-    <origin xyz="0 ${width} ${height1 - axel_offset}" rpy="0 0 0"/>
+    <origin xyz="${width} 0 ${height1 - axel_offset}" rpy="0 ${-pi/2} ${-pi/2}"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.7"/>
+    <dynamics damping="0.1"/>
+    <limit lower="-1.0" upper="1.0" effort="1.0" velocity="1.0" />
   </joint>
 
   <!-- Middle Link -->
@@ -97,7 +136,7 @@
   <joint name="joint2" type="continuous">
     <parent link="link2"/>
     <child link="link3"/>
-    <origin xyz="0 ${width} ${height2 - axel_offset*2}" rpy="0 0 0"/>
+    <origin xyz="0 ${-width} ${height2 - axel_offset*2}" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0.7"/>
   </joint>
@@ -129,39 +168,9 @@
     </inertial>
   </link>
 
-  <joint name="hokuyo_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <origin xyz="0 0 ${height3 - axel_offset/2}" rpy="0 0 0"/>
-    <parent link="link3"/>
-    <child link="hokuyo_link"/>
-  </joint>
-
-  <!-- Hokuyo Laser -->
-  <link name="hokuyo_link">
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-	<box size="0.1 0.1 0.1"/>
-      </geometry>
-    </collision>
-
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://calibrator_description/meshes/hokuyo.dae"/>
-      </geometry>
-    </visual>
-
-    <inertial>
-      <mass value="1e-5" />
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
-    </inertial>
-  </link>
-
   <joint name="camera_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="${camera_link} 0 ${height3 - axel_offset*2}" rpy="0 0 0"/>
+    <origin xyz="0 0 ${height3 - axel_offset/2}" rpy="0 ${-pi/2} ${pi}"/>
     <parent link="link3"/>
     <child link="camera_link"/>
   </joint>
@@ -202,6 +211,17 @@
 
   <link name="camera_link_optical">
   </link>
+
+  <transmission name="tran0">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint0">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor0">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
 
   <transmission name="tran1">
     <type>transmission_interface/SimpleTransmission</type>
