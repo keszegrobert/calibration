@@ -25,7 +25,7 @@
     <child link="base_link"/>
   </joint>
 
-  <xacro:include filename="$(find calibrator_description)/urdf/checkerboard.xacro" />
+  <!--xacro:include filename="$(find calibrator_description)/urdf/checkerboard.xacro" /-->
 
   <joint name="joint_fixed" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -67,15 +67,15 @@
     <origin xyz="0 0 ${height1 - axel_offset}" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <dynamics damping="0.1"/>
-    <limit lower="-2.0" upper="0.0" effort="1000" velocity="1.0" />
+    <limit lower="${-height1}" upper="0" effort="1000" velocity="1.0" />
   </joint>
 
   <!-- Base Link -->
   <link name="link1">
     <collision>
-      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <origin xyz="0 0 ${height1}" rpy="0 0 0"/>
       <geometry>
-      	<box size="${width} ${width} ${height1}"/>
+      	<box size="${width} ${width} ${height1*2}"/>
       </geometry>
     </collision>
 
@@ -97,13 +97,11 @@
     </inertial>
   </link>
 
-  <joint name="joint1" type="prismatic">
+  <joint name="joint1" type="continuous">
     <parent link="link1"/>
     <child link="link2"/>
     <origin xyz="${width} 0 ${height1 - axel_offset}" rpy="0 ${-pi/2} ${-pi/2}"/>
-    <axis xyz="0 1 0"/>
-    <dynamics damping="0.1"/>
-    <limit lower="-1.0" upper="1.0" effort="1.0" velocity="1.0" />
+    <axis xyz="0 0 1"/>
   </joint>
 
   <!-- Middle Link -->
@@ -136,7 +134,7 @@
   <joint name="joint2" type="continuous">
     <parent link="link2"/>
     <child link="link3"/>
-    <origin xyz="0 ${-width} ${height2 - axel_offset*2}" rpy="0 0 0"/>
+    <origin xyz="0 ${-width} ${height2 - axel_offset*2}" rpy="0 ${-pi/2} 0"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0.7"/>
   </joint>
