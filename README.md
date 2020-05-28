@@ -3,6 +3,24 @@
 The purpose of this project is to support the calibration of the inner camera of Gazebo.
 I experimented a little bit with the AR track alvar project in gazebo (http://wiki.ros.org/ar_track_alvar) and was not satisfied with the detected TF positions. I was convinced that the inaccuracies coming from the AR detector are caused by the not well calibrated camera in gazebo so I made this robot to do the calibration for me.
 
+## Results
+
+If you came here only for the calibration results of the Gazebo's inner camera, they are in the file: calibrationdata.tar.gz Please look at the `calibrator_description/calibrator.gazebo` for the camera settings.
+
+## Prepare your catkin environment
+
+The preparation of the catkin workspace is done the usual way:
+
+```
+$ mkdir -p ros_catkin_ws/src
+$ cd ros_catkin_ws
+$ catkin_make
+$ cd src 
+$ git clone <this project> 
+$ cd ..
+$ catkin_make
+```
+
 ## Launching the environment
 
 This project contains a gazebo world which has a modified version of rrbot available from here:
@@ -16,9 +34,11 @@ In the default state the camera looks down to a checkerboard. The image from the
 
 ```$ roslaunch calibrator_gazebo calibrator_world.launch```
 
-The robot will adjust its joints into random positions therefore the calibration will be able to see the checkerboard from different random angles and heights by running:
+The robot will adjust its joints into random positions by running:
 
 ```$ rosrun calibrator_control camera_mover.py```
+
+The calibration will be able to see the checkerboard from different random angles and heights.
 
 ## Calibration
 
@@ -43,4 +63,6 @@ More on this tool can be found here: http://wiki.ros.org/teleop_twist_keyboard
 
 ## Issues
 
-The gravitation is switched off in the gazebo world so we can move the robot without any hassle. If you feel the need to fix the physical properties, do it in a PR, I will appreciate any improvement
+Tested only on ROS Melodic, if you find issues on other platforms, please send me a PR with the recommended changes.
+
+The gravitation is switched off in the gazebo world so we can move the robot without any hassle. If you feel the need to fix the physical properties, do it in a PR, I will appreciate any improvement.
