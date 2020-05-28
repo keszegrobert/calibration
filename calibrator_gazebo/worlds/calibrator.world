@@ -19,8 +19,7 @@
         <view_controller>orbit</view_controller>
       </camera>
     </gui>
-
-
+    <gravity>0 0 0</gravity>
     <!-- CUSTOM Ground Plane -->
     <model name="custom_ground_plane_box">
       <pose>0 1.0 0 0 1.570796326794897 1.570796326794897</pose>

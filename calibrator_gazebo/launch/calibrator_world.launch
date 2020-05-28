@@ -28,6 +28,6 @@
     args="-urdf -model calibrator -param robot_description"/>
 
   <!-- ros_control calibrator launch file -->
-  <!--include file="$(find calibrator_control)/launch/calibrator_control.launch" /-->
+  <include file="$(find calibrator_control)/launch/calibrator_control.launch" />
 
 </launch>

@@ -18,20 +18,78 @@
   <xacro:include filename="$(find calibrator_description)/urdf/materials.xacro" />
 
   <!-- Used for fixing robot to Gazebo 'base_link' -->
-  <link name="base_link"/>
+  <link name="base_link">
+    <collision>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${width}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${width}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <mass value="${mass*1000}"/>
+      <inertia
+	  ixx="${mass / 12.0 * (width*width + width*width)}" ixy="0.0" ixz="0.0"
+	  iyy="${mass / 12.0 * (width*width + width*width)}" iyz="0.0"
+	  izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
   <link name="world" />
-  <joint name="joint_base" type="fixed">
+  <joint name="joint_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
     <parent link="world"/>
     <child link="base_link"/>
   </joint>
 
   <!--xacro:include filename="$(find calibrator_description)/urdf/checkerboard.xacro" /-->
-
-  <joint name="joint_fixed" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+  <joint name="joint_forward_backward" type="continuous">
+    <origin xyz="0 0 ${width}" rpy="0 0 0"/>
     <parent link="base_link"/>
+    <child link="link_cube"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+  <link name="link_cube">
+    <collision>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${width}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <geometry>
+      	<box size="${width} ${width} ${width}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${width/2}" rpy="0 0 0"/>
+      <mass value="${mass*100}"/>
+      <inertia
+	  ixx="${mass / 12.0 * (width*width + width*width)}" ixy="0.0" ixz="0.0"
+	  iyy="${mass / 12.0 * (width*width + width*width)}" iyz="0.0"
+	  izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <joint name="joint_left_right" type="continuous">
+    <origin xyz="0 0 ${width}" rpy="0 0 0"/>
+    <parent link="link_cube"/>
     <child link="link0"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 1 0"/>
   </joint>
 
   <link name="link0">
@@ -52,7 +110,7 @@
 
     <inertial>
       <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
-      <mass value="0.1"/>
+      <mass value="${mass}"/>
       <inertia
 	  ixx="${mass / 12.0 * (width*width + height1*height1)}" ixy="0.0" ixz="0.0"
 	  iyy="${mass / 12.0 * (height1*height1 + width*width)}" iyz="0.0"
@@ -70,7 +128,6 @@
     <limit lower="${-height1}" upper="0" effort="1000" velocity="1.0" />
   </joint>
 
-  <!-- Base Link -->
   <link name="link1">
     <collision>
       <origin xyz="0 0 ${height1}" rpy="0 0 0"/>
@@ -104,7 +161,6 @@
     <axis xyz="0 0 1"/>
   </joint>
 
-  <!-- Middle Link -->
   <link name="link2">
     <collision>
       <origin xyz="0 0 ${height2/2 - axel_offset}" rpy="0 0 0"/>
@@ -136,10 +192,8 @@
     <child link="link3"/>
     <origin xyz="0 ${-width} ${height2 - axel_offset*2}" rpy="0 ${-pi/2} 0"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.7"/>
   </joint>
 
-  <!-- Top Link -->
   <link name="link3">
     <collision>
       <origin xyz="0 0 ${height3/2 - axel_offset}" rpy="0 0 0"/>
@@ -173,7 +227,6 @@
     <child link="camera_link"/>
   </joint>
 
-  <!-- Camera -->
   <link name="camera_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -197,11 +250,7 @@
     </inertial>
   </link>
 
-  <!-- generate an optical frame http://www.ros.org/reps/rep-0103.html#suffix-frames
-      so that ros and opencv can operate on the camera frame correctly -->
   <joint name="camera_optical_joint" type="fixed">
-    <!-- these values have to be these values otherwise the gazebo camera image
-        won't be aligned properly with the frame it is supposedly originating from -->
     <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
     <parent link="camera_link"/>
     <child link="camera_link_optical"/>
@@ -209,6 +258,28 @@
 
   <link name="camera_link_optical">
   </link>
+
+  <transmission name="tran_lr">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_left_right">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_lr">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran_fb">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_forward_backward">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_fb">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
 
   <transmission name="tran0">
     <type>transmission_interface/SimpleTransmission</type>

@@ -5,6 +5,14 @@ calibrator:
     publish_rate: 50  
   
   # Position Controllers ---------------------------------------
+  joint_fb_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint_forward_backward
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint_lr_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint_left_right
+    pid: {p: 100.0, i: 0.01, d: 10.0}
   joint0_position_controller:
     type: effort_controllers/JointPositionController
     joint: joint0
